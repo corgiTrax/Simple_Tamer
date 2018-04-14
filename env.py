@@ -105,24 +105,24 @@ if __name__ == '__main__':
 
 
 	env = Env(SIZE, MAX_VEL)
-	agent = agent.RL_Agent(SIZE, MAX_VEL, ACTIONS, EPSILON, ALPHA, GAMMA)
+	rl_agent = agent.RL_Agent(SIZE, MAX_VEL, ACTIONS, EPSILON, ALPHA, GAMMA)
 
 
 	for eps in range(EPISODES):
 		DRAW = True #(eps == EPISODES - 1)
 		terminated = False
-		agent.reset_pos()
+		rl_agent.reset_pos()
 		cum_reward = 0
 		if DRAW: env.draw_init(agent)
 
 		while not terminated:
-			a = agent.select_act()
-			s = agent.get_state()
+			a = rl_agent.select_act()
+			s = rl_agent.get_state()
 			r, s_, terminated = env.feedback(s, a)
-			agent.update_q(a, r, s_)
-			agent.update_state(s_)
+			rl_agent.update_q(a, r, s_)
+			rl_agent.update_state(s_)
 			cum_reward += r
-			if DRAW: env.draw_update(agent)
+			if DRAW: env.draw_update(rl_agent)
 			
 		print("Episode %d ends with total reward %d" %(eps, cum_reward))
 

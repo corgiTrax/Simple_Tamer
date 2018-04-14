@@ -26,7 +26,14 @@ class Agent(object):
 
 	def update_state(self, s):
 		self.pos, self.vel = s[0], s[1]
+	
+	def s_index(self, s):
+		'''map pos and vel to q table index; note: return a tuple'''
+		return [s[0], s[1] + self.max_vel]
 
+	def a_index(self, a):
+		'''map action to q table index'''
+		return a + len(self.actions) / 2
 
 class RL_Agent(Agent):
 	def __init__(self, env_size, max_vel_allowed, actions, epsilon, alpha, gamma):
@@ -35,14 +42,6 @@ class RL_Agent(Agent):
 		self.epsilon = epsilon
 		self.alpha = alpha
 		self.gamma = gamma
-
-	def s_index(self, s):
-		'''map pos and vel to q table index; note: return a tuple'''
-		return [s[0], s[1] + self.max_vel]
-
-	def a_index(self, a):
-		'''map action to q table index'''
-		return a + len(self.actions) / 2
 
 	def select_act(self):
 		'''e-greedy choice of action according to current state [pos, vel], note this returns actual action, not its index'''
@@ -76,4 +75,30 @@ class RL_Agent(Agent):
 			print("After", self.q)
 			print("===============================")
 
-#class Tamer_Agent(Agent):
+class Tamer_Agent(RL_Agent):
+	def __init__(self, env_size, max_vel_allowed, actions, epsilon, alpha, gamma):
+		super(Tamer_Agent, self).__init__(env_size, max_vel_allowed, actions)
+		self.epsilon = epsilon
+		self.alpha = alpha
+		self.gamma = gamma
+		self.pi = np.zeros((self.env_size, self.max_vel * 2 + 1, len(self.actions)))
+		self.history = []
+
+	def update_pi(self, a, r):
+		# r is human feedback in Tamer; gamma is the credit assignment over history length
+		s = [self.pos, self.vel]
+		s_index_x, s_index_y = self.s_index(s)
+		pi_s_a = self.pi[s_index_x, s_index_y, self.a_index(a)]
+	
+
+if __name__ == '__main__':
+	SIZE = 20
+	MAX_VEL = 5 # +-
+	ACTIONS = [-1,0,1]
+	EPSILON = 0.01
+	EPISODES = 200
+	ALPHA = 0.1 # q learning learning rate
+	GAMMA = 0.99
+
+	tamer_agent = Tamer_Agent(SIZE, MAX_VEL, ACTIONS, EPSILON, ALPHA, GAMMA)
+	print(tamer_agent.gamma)
